@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar 42 - Web Ambient Drone & Microtonal Synthesizer</title>
+    <meta name="description" content="A premium web-based ambient drone and microtonal performance synthesizer inspired by the Elta Music Solar 42. Built using the Web Audio API.">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Script is deferred to ensure DOM is fully parsed -->
+    <script defer src="app.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Solar 42 - Web Playground</h1>
+        <div class="subtitle">Vibe Coding Edition: Ambient Drone & Microtonal Performance System</div>
+    </header>
+
+    <main>
+        <button id="start-btn" aria-label="Initialize Solar Audio Graph">INITIALIZE SOLAR AUDIO GRAPH</button>
+
+        <div class="synth-wrapper">
+            <!-- Offline Lock Overlay -->
+            <div id="lock-overlay" class="disabled-overlay" aria-hidden="true">
+                Audio Engine Offline. Click Initialize Above.
+            </div>
+
+            <!-- Drone Voice Section -->
+            <section class="panel-section" aria-labelledby="drone-matrix-title">
+                <div class="section-header">
+                    <h2 id="drone-matrix-title" class="section-title">Voices 1-4: Drone Matrix</h2>
+                    <div id="drift-led" class="led-indicator" title="Analog Drift Engine Status" aria-label="Drift LED"></div>
+                </div>
+                
+                <div class="drone-grid">
+                    <div class="drone-card">
+                        <button id="drone1-toggle" class="toggle-btn" onclick="toggleDrone(0)" aria-label="Toggle Voice 1">VOICE 1</button>
+                        <div class="control-group">
+                            <label for="v1-pitch">Pitch <span id="v1-pitch-val" class="val-display">65 Hz</span></label>
+                            <input type="range" id="v1-pitch" min="40" max="150" value="65" step="0.1" oninput="updateDroneFreq(0, this.value)">
+                        </div>
+                    </div>
+                    
+                    <div class="drone-card">
+                        <button id="drone2-toggle" class="toggle-btn" onclick="toggleDrone(1)" aria-label="Toggle Voice 2">VOICE 2</button>
+                        <div class="control-group">
+                            <label for="v2-pitch">Pitch <span id="v2-pitch-val" class="val-display">98 Hz</span></label>
+                            <input type="range" id="v2-pitch" min="40" max="150" value="98" step="0.1" oninput="updateDroneFreq(1, this.value)">
+                        </div>
+                    </div>
+                    
+                    <div class="drone-card">
+                        <button id="drone3-toggle" class="toggle-btn" onclick="toggleDrone(2)" aria-label="Toggle Voice 3">VOICE 3</button>
+                        <div class="control-group">
+                            <label for="v3-pitch">Pitch <span id="v3-pitch-val" class="val-display">130 Hz</span></label>
+                            <input type="range" id="v3-pitch" min="80" max="300" value="130" step="0.1" oninput="updateDroneFreq(2, this.value)">
+                        </div>
+                    </div>
+                    
+                    <div class="drone-card">
+                        <button id="drone4-toggle" class="toggle-btn" onclick="toggleDrone(3)" aria-label="Toggle Voice 4">VOICE 4</button>
+                        <div class="control-group">
+                            <label for="v4-pitch">Pitch <span id="v4-pitch-val" class="val-display">196 Hz</span></label>
+                            <input type="range" id="v4-pitch" min="80" max="300" value="196" step="0.1" oninput="updateDroneFreq(3, this.value)">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Global Processing & X/Y Pad -->
+            <section class="panel-section" aria-labelledby="global-fx-title">
+                <div class="section-header">
+                    <h2 id="global-fx-title" class="section-title">Filter Processing & X/Y Pad</h2>
+                </div>
+                
+                <div id="xy-pad" aria-label="Filter Cutoff and Resonance XY Pad">
+                    <div class="xy-label" style="top:0; left:50%; transform:translateX(-50%);">↑ MORE FILTER FEEDBACK / RESONANCE</div>
+                    <div class="xy-label" style="bottom:0; left:50%; transform:translateX(-50%);">↓ SMOOTH FILTER</div>
+                    <div class="xy-label" style="top:50%; left:0; transform:translateY(-50%) rotate(-90deg); transform-origin: left center; margin-left:10px;">← LOW CUTOFF</div>
+                    <div class="xy-label" style="top:50%; right:0; transform:translateY(-50%) rotate(90deg); transform-origin: right center; margin-right:10px;">HIGH CUTOFF →</div>
+                    <div id="xy-crosshair" aria-hidden="true"></div>
+                </div>
+                
+                <div class="fader-row-3">
+                    <div class="fader-col control-group">
+                        <label for="fx-time">Delay Time <span id="fx-time-val" class="val-display">0.60s</span></label>
+                        <input type="range" id="fx-time" min="0.1" max="2.0" value="0.6" step="0.01">
+                    </div>
+                    <div class="fader-col control-group">
+                        <label for="master-gain">Master Vol <span id="master-vol-val" class="val-display">70%</span></label>
+                        <input type="range" id="master-gain" min="0" max="1" value="0.7" step="0.01">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Performance System Section (Voices 7 & 8) -->
+            <section class="panel-section full-width" aria-labelledby="perf-title">
+                <div class="section-header">
+                    <h2 id="perf-title" class="section-title">Voices 7 & 8: Microtonal Performance System</h2>
+                </div>
+                
+                <div class="perf-controls">
+                    <div class="control-group">
+                        <label for="scale-selector">Quantizer Scale Geometry</label>
+                        <select id="scale-selector">
+                            <option value="just">Just Intonation (Harmonic Proportions)</option>
+                            <option value="pelog">Pelog (Gamelan Mineral Drone)</option>
+                            <option value="chromatic">Western Equal Temperament</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="voice-detune">Osc B Detune <span id="detune-val" class="val-display">15c</span></label>
+                        <input type="range" id="voice-detune" min="-50" max="50" value="15" step="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Envelope Settings (Attack / Decay)</label>
+                        <div class="fader-row-3">
+                            <div class="fader-col">
+                                <label for="env-attack" style="font-size:0.65rem;">A: <span id="env-a-val" class="val-display">1.20s</span></label>
+                                <input type="range" id="env-attack" min="0.02" max="4.0" value="1.2" step="0.05">
+                            </div>
+                            <div class="fader-col">
+                                <label for="env-decay" style="font-size:0.65rem;">D: <span id="env-d-val" class="val-display">2.50s</span></label>
+                                <input type="range" id="env-decay" min="0.1" max="6.0" value="2.5" step="0.05">
+                            </div>
+                            <div style="width: 90px; display: flex; flex-direction: column; justify-content: flex-end;">
+                                <button id="loop-toggle" class="toggle-btn" onclick="toggleEnvLoop()" aria-label="Toggle Generative Envelope Looping">LOOP: OFF</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Touchplate keyboard grid populated dynamically in app.js -->
+                <div class="touchplate-grid" id="plate-container" role="grid" aria-label="Microtonal Performance Keys">
+                    <!-- Dynamic child elements P1 to P12 generated on init -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+</body>
+</html>
