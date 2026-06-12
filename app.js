@@ -114,7 +114,7 @@ const buildTouchplates = () => {
     }
 };
 
-// Initialize Solar Audio Graph activation
+// Initialize Astro Drone Audio Graph activation
 startBtn.addEventListener('click', () => {
     if (!audioCtx) {
         initAudioGraph();
